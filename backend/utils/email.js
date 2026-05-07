@@ -1,12 +1,22 @@
-const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+const nodemailer = require('nodemailer');
+require('dotenv').config();
 
-const FROM = 'Verifreight <onboarding@resend.dev>';
+// NEW (Elastic Email) - with this:
+const transporter = nodemailer.createTransport({
+  host: 'smtp.elasticemail.com',
+  port: 2525,
+  secure: false,
+  auth: {
+    user: process.env.ELASTIC_USER,
+    pass: process.env.ELASTIC_PASS
+  }
+});
+
+const FROM = `Verifreight <${process.env.ELASTIC_USER}>`;
 
 async function sendCarrierSigningEmail(carrierEmail, carrierName, packetId, secureToken) {
   const signingUrl = `${process.env.APP_URL}/sign.html?token=${secureToken}`;
-  
-  await resend.emails.send({
+  await transporter.sendMail({
     from: FROM,
     to: carrierEmail,
     subject: 'Carrier Packet - Signature Required',
@@ -68,7 +78,7 @@ async function sendCarrierSigningEmail(carrierEmail, carrierName, packetId, secu
 }
 
 async function sendBrokerNotificationEmail(brokerEmail, carrierName, packetId) {
-  await resend.emails.send({
+  await transporter.sendMail({
     from: FROM,
     to: brokerEmail,
     subject: 'Carrier Packet Signed - Notification',
@@ -107,7 +117,7 @@ async function sendBrokerNotificationEmail(brokerEmail, carrierName, packetId) {
 
 async function sendReviewEmail(carrierEmail, carrierName, action, rejectionReason) {
   const isApproved = action === 'approved';
-  await resend.emails.send({
+  await transporter.sendMail({
     from: FROM,
     to: carrierEmail,
     subject: isApproved ? 'Your documents have been approved' : 'Your documents need attention',
@@ -162,7 +172,7 @@ async function sendReviewEmail(carrierEmail, carrierName, action, rejectionReaso
 }
 
 async function sendPasswordResetEmail(email, resetUrl) {
-  await resend.emails.send({
+  await transporter.sendMail({
     from: FROM,
     to: email,
     subject: 'Reset Your Verifreight Password',
@@ -201,7 +211,7 @@ async function sendPasswordResetEmail(email, resetUrl) {
 }
 
 async function sendVerificationEmail(email, verifyUrl) {
-  await resend.emails.send({
+  await transporter.sendMail({
     from: FROM,
     to: email,
     subject: 'Verify Your Verifreight Account',
