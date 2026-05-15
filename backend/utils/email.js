@@ -3,7 +3,7 @@ require('dotenv').config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = 'Verifreight <noreply@send.carrierkite.com>';
+const FROM = 'Verifreight <noreply@carrierkite.com>';
 
 async function sendCarrierSigningEmail(carrierEmail, carrierName, packetId, secureToken) {
   const signingUrl = `${process.env.APP_URL}/sign.html?token=${secureToken}`;
